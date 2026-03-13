@@ -25,7 +25,8 @@ This creates `/config/export.sh` which zips your config files, dashboards, and r
    /config/export.sh
    ```
 4. In the file explorer (left sidebar), right-click `ha-configs.zip` > **Download**
-5. Share the zip with your AI tool or drop it into your project
+5. **Browser security note:** Brave and Chrome may block the download as "insecure" since Studio Code Server serves over HTTP (or self-signed HTTPS). Click "Keep" or "Allow insecure download" to proceed. The file is safe — it's coming from your local HA instance.
+6. Share the zip with your AI tool or drop it into your project
 
 ## What Gets Exported
 
