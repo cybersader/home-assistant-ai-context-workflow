@@ -11,10 +11,10 @@ Quickly export Home Assistant configs via the Studio Code Server add-on — usef
 Run this in the Studio Code Server terminal to create the export script:
 
 ```bash
-echo 'cd /config && zip -j ha-configs.zip automations.yaml scripts.yaml scenes.yaml configuration.yaml' > /config/export.sh && chmod +x /config/export.sh
+echo 'cd /config && zip ha-configs.zip automations.yaml scripts.yaml scenes.yaml configuration.yaml .storage/lovelace* .storage/core.config_entries .storage/core.device_registry .storage/core.entity_registry .storage/core.area_registry' > /config/export.sh && chmod +x /config/export.sh
 ```
 
-This creates `/config/export.sh` which zips your 4 main config files.
+This creates `/config/export.sh` which zips your config files, dashboards, and registries into a single download.
 
 ## Usage
 
@@ -35,21 +35,31 @@ This creates `/config/export.sh` which zips your 4 main config files.
 | `scripts.yaml` | All scripts |
 | `scenes.yaml` | All scenes |
 | `configuration.yaml` | Core HA configuration |
+| `.storage/lovelace*` | All dashboard configurations |
+| `.storage/core.device_registry` | Device names and ID mappings |
+| `.storage/core.entity_registry` | Entity customizations |
+| `.storage/core.area_registry` | Room and area definitions |
+| `.storage/core.config_entries` | Integration setup |
 
 ## Customizing
 
-To add more files to the export, edit `/config/export.sh`:
+Edit `/config/export.sh` to add or remove files. For example, to also include helpers:
 
 ```bash
-cd /config && zip -j ha-configs.zip \
+cd /config && zip ha-configs.zip \
   automations.yaml \
   scripts.yaml \
   scenes.yaml \
   configuration.yaml \
-  secrets.yaml
+  .storage/lovelace* \
+  .storage/core.config_entries \
+  .storage/core.device_registry \
+  .storage/core.entity_registry \
+  .storage/core.area_registry \
+  .storage/core.restore_state
 ```
 
-> **Warning:** Be careful exporting `secrets.yaml` or other files containing passwords/tokens. Only share with tools and services you trust.
+> **Warning:** Be careful exporting files that may contain passwords/tokens (like `secrets.yaml`). Only share with tools and services you trust. The `.storage/core.config_entries` file may contain API keys for integrations.
 
 ## Why This Exists
 
