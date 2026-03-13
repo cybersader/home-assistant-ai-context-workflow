@@ -8,10 +8,22 @@ Quickly export Home Assistant configs via the Studio Code Server add-on — usef
 
 ## One-Time Setup
 
-Run this in the Studio Code Server terminal to create the export script:
+Open the Studio Code Server terminal (`Ctrl+backtick` or Terminal > New Terminal) and run these two commands:
+
+### 1. Show hidden files (including `.storage`)
+
+By default, Studio Code Server hides `.storage` and other useful directories. Run this to make everything visible:
 
 ```bash
-echo 'cd /config && zip ha-configs.zip automations.yaml scripts.yaml scenes.yaml configuration.yaml .storage/lovelace* .storage/core.config_entries .storage/core.device_registry .storage/core.entity_registry .storage/core.area_registry' > /config/export.sh && chmod +x /config/export.sh
+sed -i 's/"\*\*\/.storage": true/"**\/.storage": false/' /root/.local/share/code-server/User/settings.json 2>/dev/null || echo '{"files.exclude":{"**/.storage":false}}' > /root/.local/share/code-server/User/settings.json
+```
+
+> After running, `.storage` will appear in the file explorer sidebar. You may need to reload the window (`Ctrl+Shift+P` > "Developer: Reload Window") for it to take effect.
+
+### 2. Create the export script
+
+```bash
+echo 'cd /config && zip -r ha-configs.zip automations.yaml scripts.yaml scenes.yaml configuration.yaml .storage/lovelace* .storage/core.config_entries .storage/core.device_registry .storage/core.entity_registry .storage/core.area_registry' > /config/export.sh && chmod +x /config/export.sh
 ```
 
 This creates `/config/export.sh` which zips your config files, dashboards, and registries into a single download.
@@ -22,11 +34,37 @@ This creates `/config/export.sh` which zips your config files, dashboards, and r
 2. Open the terminal (`Ctrl+backtick` or Terminal > New Terminal)
 3. Run:
    ```bash
-   /config/export.sh
+   bash /config/export.sh
    ```
 4. In the file explorer (left sidebar), right-click `ha-configs.zip` > **Download**
-5. **Browser security note:** Brave and Chrome may block the download as "insecure" since Studio Code Server serves over HTTP (or self-signed HTTPS). Click "Keep" or "Allow insecure download" to proceed. The file is safe — it's coming from your local HA instance.
-6. Share the zip with your AI tool or drop it into your project
+5. Share the zip with your AI tool or drop it into your project
+
+## Troubleshooting
+
+### Browser blocks the download
+
+Brave and Chrome may block the download as "insecure" since Studio Code Server typically serves over HTTP (or self-signed HTTPS within your local network).
+
+- **Brave**: Click the blocked download notification > "Keep dangerous file" (it's not actually dangerous)
+- **Chrome**: Click the download bar warning > "Keep" or go to `chrome://downloads` and click "Keep dangerous file"
+- **Firefox**: Usually downloads without issues
+
+The file is safe — it's coming directly from your local Home Assistant instance on your own network.
+
+### `.storage` folder not visible
+
+If `.storage` still doesn't appear after running the setup command:
+
+1. `Ctrl+Shift+P` > **"Preferences: Open User Settings (JSON)"**
+2. Find `"files.exclude"` and set `"**/.storage"` to `false`
+3. Save and reload the window
+
+### Export script not found
+
+Make sure you ran the setup command from step 2. Verify with:
+```bash
+cat /config/export.sh
+```
 
 ## What Gets Exported
 
@@ -44,10 +82,10 @@ This creates `/config/export.sh` which zips your config files, dashboards, and r
 
 ## Customizing
 
-Edit `/config/export.sh` to add or remove files. For example, to also include helpers:
+Edit `/config/export.sh` to add or remove files. For example, to also include restore state:
 
 ```bash
-cd /config && zip ha-configs.zip \
+cd /config && zip -r ha-configs.zip \
   automations.yaml \
   scripts.yaml \
   scenes.yaml \
